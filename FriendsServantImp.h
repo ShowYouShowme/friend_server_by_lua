@@ -3,7 +3,14 @@
 
 #include "servant/Application.h"
 #include "FriendsServant.h"
-
+#include <util/tc_mysql.h>
+#include "LogComm.h"
+extern "C" 
+{
+#include <lua.h>
+#include <lualib.h>
+#include <lauxlib.h>
+}
 /**
  *
  *
@@ -34,6 +41,11 @@ public:
     virtual tars::Int32 QueryFriends(const Friends::QueryFriendListReq &req,Friends::QueryFriendListResp &resp,tars::TarsCurrentPtr current);
     virtual tars::Int32 AgreeToAdd(const Friends::AgreeToAddReq & req,Friends::AgreeToAddResp &resp,tars::TarsCurrentPtr current);
     virtual tars::Int32 GetApplicantList(const Friends::QueryApplicantListReq & req,Friends::QueryApplicantListResp &resp,tars::TarsCurrentPtr current);
+
+private:
+    TC_Mysql m_mysqlObj; //mysql操作对象
+
+    lua_State *m_pLua;
 };
 /////////////////////////////////////////////////////
 #endif
