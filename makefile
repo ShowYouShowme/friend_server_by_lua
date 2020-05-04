@@ -19,8 +19,13 @@ include /usr/local/tars/cpp/makefile/makefile.tars
 #-----------------------------------------------------------------------
 
 
-copy:
+copyall:
 	curl -X POST -H "Content-Type:application/json" http://10.10.10.188:3000/pages/server/api/add_task -d "{\"serial\":true,\"items\":[{\"server_id\":73,\"command\":\"stop\"}]}"
 	cp -f ./FriendsServer /usr/local/app/tars/tarsnode/data/XGame.FriendsServer/bin/
+	cp -f ./main.lua /usr/local/app/tars/tarsnode/data/XGame.FriendsServer/bin/
+	curl -X POST -H "Content-Type:application/json" http://10.10.10.188:3000/pages/server/api/add_task -d "{\"serial\":true,\"items\":[{\"server_id\":73,\"command\":\"restart\"}]}"
+copylua:
+	curl -X POST -H "Content-Type:application/json" http://10.10.10.188:3000/pages/server/api/add_task -d "{\"serial\":true,\"items\":[{\"server_id\":73,\"command\":\"stop\"}]}"
+	#cp -f ./FriendsServer /usr/local/app/tars/tarsnode/data/XGame.FriendsServer/bin/
 	cp -f ./main.lua /usr/local/app/tars/tarsnode/data/XGame.FriendsServer/bin/
 	curl -X POST -H "Content-Type:application/json" http://10.10.10.188:3000/pages/server/api/add_task -d "{\"serial\":true,\"items\":[{\"server_id\":73,\"command\":\"restart\"}]}"
