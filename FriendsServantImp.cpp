@@ -22,6 +22,17 @@ namespace{
 		}
 		records = res.data();
 	}
+
+    // lua 调用此函数来打印日志
+    int Log(lua_State *L)//固定格式
+    {
+        size_t len;
+        const char* msg = lua_tolstring(L, 
+                                    1, //栈底
+                                    &len);
+        ROLLLOG_DEBUG << msg << endl;                            
+        return 0;//返回给lua的参数个数
+    }
 }
 void FriendsServantImp::initialize()
 {
@@ -55,6 +66,9 @@ void FriendsServantImp::initialize()
     luaopen_base(m_pLua);//打开基本库
     luaopen_table(m_pLua);
     luaL_openlibs(m_pLua);
+
+    // 注册c++函数给lua调用
+    lua_register(m_pLua, "Log", Log);
     luaL_loadfile(m_pLua, (ServerConfig::BasePath + "main.lua").c_str());//载入文件
     int ret = lua_pcall(m_pLua, 
         0,//参数个数 
@@ -83,7 +97,6 @@ tars::Int32 FriendsServantImp::AddFriend(const Friends::AddFriendReq& req, Frien
                    2,//参数个数
                    1,//返回值个数
                    0);//错误处理函数在栈中的位置
-    ROLLLOG_DEBUG << "ret : " << ret << endl;
     if (ret != 0)
     {
         const char* error = lua_tostring(m_pLua, -1);

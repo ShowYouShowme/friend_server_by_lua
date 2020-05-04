@@ -8,6 +8,6 @@ print(info["name"])
 
 
 function AddFriend(uid, friend_uid)
-    print("uid : " .. uid)
+    Log("log from lua!")
     return 1024
 end
