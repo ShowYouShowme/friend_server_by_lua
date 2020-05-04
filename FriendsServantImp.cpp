@@ -219,13 +219,44 @@ tars::Int32 FriendsServantImp::DeleteFriend(const Friends::DeleteFriendReq& req,
     ROLLLOG_ERROR << "++++top is " << lua_gettop(m_pLua) << endl;;//检查堆栈情况
     return resp_from_lua;
 }
+// TODO LUA 如何返回数组
+// 方式一: 返回json
+// 方式二: 返回table
 tars::Int32 FriendsServantImp::QueryFriends(const Friends::QueryFriendListReq &req,Friends::QueryFriendListResp &resp,tars::TarsCurrentPtr current)
 {
-    return 0;
+    ROLLLOG_ERROR << "----top is " << lua_gettop(m_pLua) << endl;
+    lua_getglobal(m_pLua, "QueryFriends");
+    lua_pushinteger(m_pLua, req.uid);
+    if( lua_pcall(m_pLua,1,1,0)!= 0 ){
+        const char* error = lua_tostring(m_pLua, -1);
+        ROLLLOG_ERROR << "lua lua_pcall error: " << error << endl;
+        return -1;
+    }
+    // 获取返回值 -- 返回值在栈顶
+    int resp_from_lua = lua_tonumber(m_pLua, -1);
+    lua_pop(m_pLua, 1);//弹出一个元素
+    ROLLLOG_DEBUG << "resp_from_lua : " << resp_from_lua << endl;
+    ROLLLOG_ERROR << "++++top is " << lua_gettop(m_pLua) << endl;;//检查堆栈情况
+    return resp_from_lua;
 }
 tars::Int32 FriendsServantImp::AgreeToAdd(const Friends::AgreeToAddReq & req,Friends::AgreeToAddResp &resp,tars::TarsCurrentPtr current)
 {
-    return 0;
+    ROLLLOG_ERROR << "----top is " << lua_gettop(m_pLua) << endl;
+    lua_getglobal(m_pLua, "AgreeToAdd");
+    lua_pushinteger(m_pLua, req.uid);
+    lua_pushinteger(m_pLua, req.friend_uid);
+    lua_pushinteger(m_pLua, req.is_agree);
+    if( lua_pcall(m_pLua,3,1,0)!= 0 ){
+        const char* error = lua_tostring(m_pLua, -1);
+        ROLLLOG_ERROR << "lua lua_pcall error: " << error << endl;
+        return -1;
+    }
+    // 获取返回值 -- 返回值在栈顶
+    int resp_from_lua = lua_tonumber(m_pLua, -1);
+    lua_pop(m_pLua, 1);//弹出一个元素
+    ROLLLOG_DEBUG << "resp_from_lua : " << resp_from_lua << endl;
+    ROLLLOG_ERROR << "++++top is " << lua_gettop(m_pLua) << endl;;//检查堆栈情况
+    return resp_from_lua;
 }
 tars::Int32 FriendsServantImp::GetApplicantList(const Friends::QueryApplicantListReq & req,Friends::QueryApplicantListResp &resp,tars::TarsCurrentPtr current)
 {

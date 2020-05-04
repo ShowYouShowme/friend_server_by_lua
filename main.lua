@@ -90,3 +90,29 @@ function DeleteFriend(uid, friend_uid)
     UpdateFriendEntry(friend_uid, uid, E_DELETE)
     return 0
 end
+
+function QueryFriends(uid)
+    local result = query("select * from tb_friend where uid = " .. uid)
+    Log("result : " .. result)
+
+    local records = json.decode(result)
+    for i,v1 in ipairs(records) do
+        for j,v2 in pairs(v1) do
+            Log(i .. j .. v2)
+        end
+    end
+    return 0
+end
+
+function AgreeToAdd( uid, friend_uid, is_agree )
+    local E_FRIEND          = 3
+    local E_APPLY_BEEN_READ = 2
+    local relationship = nil
+    if is_agree == 1 then
+        relationship = E_FRIEND
+    else
+        relationship = E_APPLY_BEEN_READ
+    end
+    UpdateFriendEntry(uid, friend_uid, relationship)
+    UpdateFriendEntry(friend_uid, uid, relationship)
+end
