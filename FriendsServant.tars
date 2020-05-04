@@ -1,0 +1,23 @@
+#include "FriendsProto.tars"
+//#include "/home/tarsproto/JFGame/Comm/JFGame.tars"
+/**
+**好友系统接口
+* 
+**/
+module Friends
+{
+    interface FriendsServant
+    {
+      int AddFriend(AddFriendReq req, out AddFriendResp resp);
+
+      int DeleteFriend(DeleteFriendReq req, out DeleteFriendResp resp);
+
+      int QueryFriends(QueryFriendListReq uid,out QueryFriendListResp resp);
+
+      int AgreeToAdd(AgreeToAddReq req, out AgreeToAddResp resp);
+
+      int GetApplicantList(QueryApplicantListReq req, out QueryApplicantListResp resp);
+
+      //int onRequest(long lUin, string sMsgPack, string sCurServrantAddr, JFGame::TClientParam stClientParam, JFGame::UserBaseInfoExt stUserBaseInfo);
+    };
+}; 
