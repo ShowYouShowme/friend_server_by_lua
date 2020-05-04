@@ -24,7 +24,7 @@ namespace{
 	}
 
     // lua 调用此函数来打印日志
-    int Log(lua_State *L)//固定格式
+    int __Log(lua_State *L)//固定格式
     {
         size_t len;
         const char* msg = lua_tolstring(L, 
@@ -68,7 +68,7 @@ void FriendsServantImp::initialize()
     luaL_openlibs(m_pLua);
 
     // 注册c++函数给lua调用
-    lua_register(m_pLua, "Log", Log);
+    lua_register(m_pLua, "Log", __Log);
     luaL_loadfile(m_pLua, (ServerConfig::BasePath + "main.lua").c_str());//载入文件
     int ret = lua_pcall(m_pLua, 
         0,//参数个数 
