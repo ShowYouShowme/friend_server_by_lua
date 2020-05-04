@@ -55,7 +55,7 @@ namespace{
         auto result= mysql_store_result(conn.getMysql());
         if (!result)
         {
-            ROLLLOG_DEBUG << "[INSERT] Got fatal error processing query" << endl;
+            ROLLLOG_DEBUG << "[INSERT] Got fatal error processing query" << endl; //TODO 这里好像不是出错
         } 
         mysql_free_result(result);
         return 0;
@@ -68,7 +68,7 @@ namespace{
         auto result= mysql_store_result(conn.getMysql());
         if (!result)
         {
-            ROLLLOG_DEBUG << "[UPDATE] Got fatal error processing query" << endl;
+            ROLLLOG_DEBUG << "[UPDATE] Got fatal error processing query" << endl; //TODO 这里好像不是出错
         } 
         mysql_free_result(result);
         return 0;
@@ -199,11 +199,25 @@ tars::Int32 FriendsServantImp::AddFriend(const Friends::AddFriendReq& req, Frien
     lua_pop(m_pLua, 1);//弹出一个元素
     ROLLLOG_DEBUG << "resp_from_lua : " << resp_from_lua << endl;
     ROLLLOG_ERROR << "++++top is " << lua_gettop(m_pLua) << endl;;//检查堆栈情况
-    return 0;
+    return resp_from_lua;
 }
 tars::Int32 FriendsServantImp::DeleteFriend(const Friends::DeleteFriendReq& req, Friends::DeleteFriendResp& resp, tars::TarsCurrentPtr current)
 {
-    return 0;
+    ROLLLOG_ERROR << "----top is " << lua_gettop(m_pLua) << endl;
+    lua_getglobal(m_pLua, "DeleteFriend");
+    lua_pushinteger(m_pLua, req.uid);
+    lua_pushinteger(m_pLua,req.friend_uid);
+    if( lua_pcall(m_pLua,2,1,0)!= 0 ){
+        const char* error = lua_tostring(m_pLua, -1);
+        ROLLLOG_ERROR << "lua lua_pcall error: " << error << endl;
+        return -1;
+    }
+    // 获取返回值 -- 返回值在栈顶
+    int resp_from_lua = lua_tonumber(m_pLua, -1);
+    lua_pop(m_pLua, 1);//弹出一个元素
+    ROLLLOG_DEBUG << "resp_from_lua : " << resp_from_lua << endl;
+    ROLLLOG_ERROR << "++++top is " << lua_gettop(m_pLua) << endl;;//检查堆栈情况
+    return resp_from_lua;
 }
 tars::Int32 FriendsServantImp::QueryFriends(const Friends::QueryFriendListReq &req,Friends::QueryFriendListResp &resp,tars::TarsCurrentPtr current)
 {

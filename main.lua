@@ -76,3 +76,17 @@ function AddFriend(uid, friend_uid)
     end
     return 0
 end
+
+function UpdateFriendEntry(uid, friend_uid, relationship)
+    local sql = string.format("update tb_friend set relationship = %d where uid = %d and friend_uid = %d", relationship, uid, friend_uid)
+    local result = update(sql)
+    Log("result : " .. result)
+    return 0    
+end
+
+function DeleteFriend(uid, friend_uid)
+    local E_DELETE = 4
+    UpdateFriendEntry(uid, friend_uid, E_DELETE)
+    UpdateFriendEntry(friend_uid, uid, E_DELETE)
+    return 0
+end
