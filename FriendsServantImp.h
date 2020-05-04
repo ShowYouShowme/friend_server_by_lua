@@ -42,10 +42,16 @@ public:
     virtual tars::Int32 AgreeToAdd(const Friends::AgreeToAddReq & req,Friends::AgreeToAddResp &resp,tars::TarsCurrentPtr current);
     virtual tars::Int32 GetApplicantList(const Friends::QueryApplicantListReq & req,Friends::QueryApplicantListResp &resp,tars::TarsCurrentPtr current);
 
-private:
+public:
     TC_Mysql m_mysqlObj; //mysql操作对象
 
     lua_State *m_pLua;
+    int a = 12379;
+
+    int say_hello(lua_State *L);
 };
+
+// 声明变量 如果其他地方用不到,可以不声明
+// extern FriendsServantImp* ptrFriendsServant;
 /////////////////////////////////////////////////////
 #endif

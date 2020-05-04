@@ -22,6 +22,23 @@ namespace{
 		}
 		records = res.data();
 	}
+    FriendsServantImp* ptrFriendsServant = nullptr;
+
+
+    int __query(lua_State *L) // 查询数据库
+    {
+        size_t len;
+        const char* sql = lua_tolstring(L, 1,&len); // 1是栈底
+        ROLLLOG_DEBUG << "SQL : " << sql << endl;
+        vector<map<string, string>> records;
+        readMysql(ptrFriendsServant->m_mysqlObj, sql, records);
+        for(map<string, string>& row : records){
+            for(auto& field : row){
+                ROLLLOG_DEBUG << field.first << " : " << field.second << endl;
+            }
+        }
+        return 0;
+    }
 
     // lua 调用此函数来打印日志
     int __Log(lua_State *L)//固定格式
@@ -69,6 +86,7 @@ void FriendsServantImp::initialize()
 
     // 注册c++函数给lua调用
     lua_register(m_pLua, "Log", __Log);
+    lua_register(m_pLua, "query", __query);
     luaL_loadfile(m_pLua, (ServerConfig::BasePath + "main.lua").c_str());//载入文件
     int ret = lua_pcall(m_pLua, 
         0,//参数个数 
@@ -77,6 +95,7 @@ void FriendsServantImp::initialize()
     if(ret != 0){ 
         printf("lua_pcall failed %s\n", lua_tostring(m_pLua, -1));
     }
+    ptrFriendsServant = this;
 }
 
 //////////////////////////////////////////////////////
@@ -125,5 +144,10 @@ tars::Int32 FriendsServantImp::AgreeToAdd(const Friends::AgreeToAddReq & req,Fri
 tars::Int32 FriendsServantImp::GetApplicantList(const Friends::QueryApplicantListReq & req,Friends::QueryApplicantListResp &resp,tars::TarsCurrentPtr current)
 {
     return 0;
+}
+
+int FriendsServantImp::say_hello(lua_State *L)
+{
+    ROLLLOG_DEBUG << this->a << endl;
 }
 

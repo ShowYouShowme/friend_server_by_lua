@@ -9,5 +9,7 @@ print(info["name"])
 
 function AddFriend(uid, friend_uid)
     Log("log from lua!")
+
+    query("select * from tb_friend")
     return 1024
 end
