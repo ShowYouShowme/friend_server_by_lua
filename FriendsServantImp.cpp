@@ -46,11 +46,11 @@ namespace{
 		TC_Mysql::MysqlData res = conn.queryRecord(strSQL);
 		ROLLLOG_DEBUG << "Execute SQL: [" << strSQL << "], return " << res.size() << " records." << endl;
 		//无数据
-		if (res.size() <= 0)
-		{
-			ROLLLOG_WARN << " no data." << endl;
-			return -1;
-		}
+		// if (res.size() <= 0)
+		// {
+		// 	ROLLLOG_WARN << " no data." << endl;
+		// 	return -1;
+		// }
 		vector<map<string, string>> records = res.data();
         json = toJson(records);
         return 0;
