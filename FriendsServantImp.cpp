@@ -84,7 +84,12 @@ tars::Int32 FriendsServantImp::AddFriend(const Friends::AddFriendReq& req, Frien
                    1,//返回值个数
                    0);//错误处理函数在栈中的位置
     ROLLLOG_DEBUG << "ret : " << ret << endl;
-
+    if (ret != 0)
+    {
+        const char* error = lua_tostring(m_pLua, -1);
+        ROLLLOG_ERROR << "lua lua_pcall error: " << error << endl;
+        return -1;
+    }
     // 获取返回值 -- 返回值在栈顶
     int resp_from_lua = lua_tonumber(m_pLua, -1);
     lua_pop(m_pLua, 1);//弹出一个元素
