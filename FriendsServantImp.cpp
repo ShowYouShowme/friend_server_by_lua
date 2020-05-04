@@ -37,37 +37,76 @@ namespace{
         return json;
     }
 
-    // 读取配置文件
-	int readMysql(TC_Mysql& conn, const string& strSQL, string& json)
+	int query(TC_Mysql& conn, const string& strSQL, string& json)
 	{
-		//sql语句
-		ROLLLOG_DEBUG << "sql: " << strSQL << endl;
+		ROLLLOG_DEBUG << "SELECT SQL: [" << strSQL << "]" <<  endl;
 		//查询数据
 		TC_Mysql::MysqlData res = conn.queryRecord(strSQL);
-		ROLLLOG_DEBUG << "Execute SQL: [" << strSQL << "], return " << res.size() << " records." << endl;
-		//无数据
-		// if (res.size() <= 0)
-		// {
-		// 	ROLLLOG_WARN << " no data." << endl;
-		// 	return -1;
-		// }
 		vector<map<string, string>> records = res.data();
         json = toJson(records);
         return 0;
 	}
+
+	int insert(TC_Mysql& conn, const string& strSQL)
+	{
+		ROLLLOG_DEBUG << "INSERT SQL: [" << strSQL << "]" << endl;
+		//执行sql
+		conn.execute(strSQL);
+        auto result= mysql_store_result(conn.getMysql());
+        if (!result)
+        {
+            ROLLLOG_DEBUG << "[INSERT] Got fatal error processing query" << endl;
+        } 
+        mysql_free_result(result);
+        return 0;
+	}
+
+	int update(TC_Mysql& conn, const string& strSQL)
+	{
+		ROLLLOG_DEBUG << "UPDATE SQL: [" << strSQL << "]"  << endl;
+		conn.execute(strSQL);
+        auto result= mysql_store_result(conn.getMysql());
+        if (!result)
+        {
+            ROLLLOG_DEBUG << "[UPDATE] Got fatal error processing query" << endl;
+        } 
+        mysql_free_result(result);
+        return 0;
+	}
+
     FriendsServantImp* ptrFriendsServant = nullptr;
 
-
-    int __query(lua_State *L) // 查询数据库
+    int __query(lua_State *L) // 查询数据库 TODO 返回两个值,第一个表示错误码
     {
         size_t len;
         const char* sql = lua_tolstring(L, 1,&len); // 1是栈底
-        ROLLLOG_DEBUG << "SQL : " << sql << endl;
         
         string result;
-        readMysql(ptrFriendsServant->m_mysqlObj, sql, result);
+        query(ptrFriendsServant->m_mysqlObj, sql, result);
         // 返回值传给lua
         lua_pushstring(L, (const char*)result.c_str());
+        return 1; // 返回json给lua
+    }
+
+    int __insert(lua_State *L)
+    {
+        size_t len;
+        const char* sql = lua_tolstring(L, 1,&len); // 1是栈底
+        string result;
+        int ret = insert(ptrFriendsServant->m_mysqlObj, sql);
+        // 返回值传给lua
+        lua_pushnumber(L, ret);
+        return 1; // 返回json给lua
+    }
+
+    int __update(lua_State *L)
+    {
+        size_t len;
+        const char* sql = lua_tolstring(L, 1,&len); // 1是栈底
+        string result;
+        int ret = update(ptrFriendsServant->m_mysqlObj, sql);
+        // 返回值传给lua
+        lua_pushnumber(L, ret);
         return 1; // 返回json给lua
     }
 
@@ -118,6 +157,8 @@ void FriendsServantImp::initialize()
     // 注册c++函数给lua调用
     lua_register(m_pLua, "Log", __Log);
     lua_register(m_pLua, "query", __query);
+    lua_register(m_pLua, "insert", __insert);
+    lua_register(m_pLua, "update", __update);
     luaL_loadfile(m_pLua, (ServerConfig::BasePath + "main.lua").c_str());//载入文件
     int ret = lua_pcall(m_pLua, 
         0,//参数个数 
