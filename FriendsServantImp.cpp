@@ -260,6 +260,20 @@ tars::Int32 FriendsServantImp::AgreeToAdd(const Friends::AgreeToAddReq & req,Fri
 }
 tars::Int32 FriendsServantImp::GetApplicantList(const Friends::QueryApplicantListReq & req,Friends::QueryApplicantListResp &resp,tars::TarsCurrentPtr current)
 {
+    ROLLLOG_ERROR << "----top is " << lua_gettop(m_pLua) << endl;
+    lua_getglobal(m_pLua, "GetApplicantList");
+    lua_pushinteger(m_pLua, req.uid);
+    if( lua_pcall(m_pLua,1,1,0)!= 0 ){
+        const char* error = lua_tostring(m_pLua, -1);
+        ROLLLOG_ERROR << "lua lua_pcall error: " << error << endl;
+        return -1;
+    }
+    // 获取返回值 -- 返回值在栈顶
+    int resp_from_lua = lua_tonumber(m_pLua, -1);
+    lua_pop(m_pLua, 1);//弹出一个元素
+    ROLLLOG_DEBUG << "resp_from_lua : " << resp_from_lua << endl;
+    ROLLLOG_ERROR << "++++top is " << lua_gettop(m_pLua) << endl;;//检查堆栈情况
+    return resp_from_lua;
     return 0;
 }
 

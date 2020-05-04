@@ -116,3 +116,17 @@ function AgreeToAdd( uid, friend_uid, is_agree )
     UpdateFriendEntry(uid, friend_uid, relationship)
     UpdateFriendEntry(friend_uid, uid, relationship)
 end
+
+function GetApplicantList(uid)
+    local E_BE_APPLIED = 1
+    local sql = string.format("select * from tb_friend where uid = %d and relationship = %d", uid, E_BE_APPLIED)
+    local result = query(sql)
+    Log("result : " .. result)
+    local records = json.decode(result)
+    for i,v1 in ipairs(records) do
+        for j,v2 in pairs(v1) do
+            Log(i .. j .. v2)
+        end
+    end
+    return 0
+end
