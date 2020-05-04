@@ -72,10 +72,19 @@ void FriendsServantImp::destroy()
     //...
 }
 
-
+// 如何传参[int, number, string, bool 如何传入] 如何从lua获取返回值
 tars::Int32 FriendsServantImp::AddFriend(const Friends::AddFriendReq& req, Friends::AddFriendResp& resp, tars::TarsCurrentPtr current)
 {
-    resp.resultCode = 128;
+    ROLLLOG_ERROR << "----top is " << lua_gettop(m_pLua) << endl;
+    lua_getglobal(m_pLua, "AddFriend");
+    lua_pushinteger(m_pLua, req.uid);
+    lua_pushinteger(m_pLua,req.friend_uid);
+    int ret = lua_pcall(m_pLua,
+                   2,//参数个数
+                   0,//返回值个数
+                   0);//错误处理函数在栈中的位置
+    ROLLLOG_DEBUG << "ret : " << ret << endl;
+    ROLLLOG_ERROR << "++++top is " << lua_gettop(m_pLua) << endl;;//检查堆栈情况
     return 0;
 }
 tars::Int32 FriendsServantImp::DeleteFriend(const Friends::DeleteFriendReq& req, Friends::DeleteFriendResp& resp, tars::TarsCurrentPtr current)
