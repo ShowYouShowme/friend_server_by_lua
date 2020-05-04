@@ -20,6 +20,7 @@ void FriendsServantImp::destroy()
 
 tars::Int32 FriendsServantImp::AddFriend(const Friends::AddFriendReq& req, Friends::AddFriendResp& resp, tars::TarsCurrentPtr current)
 {
+    resp.resultCode = 128;
     return 0;
 }
 tars::Int32 FriendsServantImp::DeleteFriend(const Friends::DeleteFriendReq& req, Friends::DeleteFriendResp& resp, tars::TarsCurrentPtr current)
