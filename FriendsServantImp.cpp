@@ -81,9 +81,14 @@ tars::Int32 FriendsServantImp::AddFriend(const Friends::AddFriendReq& req, Frien
     lua_pushinteger(m_pLua,req.friend_uid);
     int ret = lua_pcall(m_pLua,
                    2,//参数个数
-                   0,//返回值个数
+                   1,//返回值个数
                    0);//错误处理函数在栈中的位置
     ROLLLOG_DEBUG << "ret : " << ret << endl;
+
+    // 获取返回值 -- 返回值在栈顶
+    int resp_from_lua = lua_tonumber(m_pLua, -1);
+    lua_pop(m_pLua, 1);//弹出一个元素
+    ROLLLOG_DEBUG << "resp_from_lua : " << resp_from_lua << endl;
     ROLLLOG_ERROR << "++++top is " << lua_gettop(m_pLua) << endl;;//检查堆栈情况
     return 0;
 }
