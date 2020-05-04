@@ -6,8 +6,39 @@ using namespace std;
 //////////////////////////////////////////////////////
 
 namespace{
+    string toJson(const vector<map<string, string>>& v)
+    {
+        string json = "[";
+        for (size_t j = 0; j < v.size(); ++j){
+            const map<string, string>& item = v[j];
+            json += "{";
+            size_t i = 0;
+            size_t len = item.size();
+            for (auto it = item.begin(); it != item.end(); ++it){
+                json += "\"";
+                json += it->first;
+                json += "\":";
+
+                json += "\"";
+                json += it->second;
+                json += "\"";
+
+                if (i != len - 1){
+                    json += ",";
+                    i++;
+                }
+            }
+            json += "}";
+            if (j != v.size() - 1){
+                json += ",";
+            }
+        }
+        json += "]";
+        return json;
+    }
+
     // 读取配置文件
-	void readMysql(TC_Mysql& conn, const string& strSQL, vector<map<string, string>>& records)
+	int readMysql(TC_Mysql& conn, const string& strSQL, string& json)
 	{
 		//sql语句
 		ROLLLOG_DEBUG << "sql: " << strSQL << endl;
@@ -18,9 +49,11 @@ namespace{
 		if (res.size() <= 0)
 		{
 			ROLLLOG_WARN << " no data." << endl;
-			return ;
+			return -1;
 		}
-		records = res.data();
+		vector<map<string, string>> records = res.data();
+        json = toJson(records);
+        return 0;
 	}
     FriendsServantImp* ptrFriendsServant = nullptr;
 
@@ -30,14 +63,12 @@ namespace{
         size_t len;
         const char* sql = lua_tolstring(L, 1,&len); // 1是栈底
         ROLLLOG_DEBUG << "SQL : " << sql << endl;
-        vector<map<string, string>> records;
-        readMysql(ptrFriendsServant->m_mysqlObj, sql, records);
-        for(map<string, string>& row : records){
-            for(auto& field : row){
-                ROLLLOG_DEBUG << field.first << " : " << field.second << endl;
-            }
-        }
-        return 0;
+        
+        string result;
+        readMysql(ptrFriendsServant->m_mysqlObj, sql, result);
+        // 返回值传给lua
+        lua_pushstring(L, (const char*)result.c_str());
+        return 1; // 返回json给lua
     }
 
     // lua 调用此函数来打印日志
@@ -144,10 +175,5 @@ tars::Int32 FriendsServantImp::AgreeToAdd(const Friends::AgreeToAddReq & req,Fri
 tars::Int32 FriendsServantImp::GetApplicantList(const Friends::QueryApplicantListReq & req,Friends::QueryApplicantListResp &resp,tars::TarsCurrentPtr current)
 {
     return 0;
-}
-
-int FriendsServantImp::say_hello(lua_State *L)
-{
-    ROLLLOG_DEBUG << this->a << endl;
 }
 
