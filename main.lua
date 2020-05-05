@@ -122,10 +122,9 @@ function GetApplicantList(uid)
     local result = query(sql)
     Log("result : " .. result)
     local records = json.decode(result)
+    local appli_list = {}
     for i,v1 in ipairs(records) do
-        for j,v2 in pairs(v1) do
-            Log(i .. j .. v2)
-        end
+        table.insert( appli_list, v1["friend_uid"] )
     end
-    return 0
+    return appli_list
 end

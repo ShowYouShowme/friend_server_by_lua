@@ -251,9 +251,7 @@ tars::Int32 FriendsServantImp::DeleteFriend(const Friends::DeleteFriendReq& req,
     ROLLLOG_ERROR << "++++top is " << lua_gettop(m_pLua) << endl;;//检查堆栈情况
     return resp_from_lua;
 }
-// TODO LUA 如何返回数组
-// 方式一: 返回json
-// 方式二: 返回table
+
 tars::Int32 FriendsServantImp::QueryFriends(const Friends::QueryFriendListReq &req,Friends::QueryFriendListResp &resp,tars::TarsCurrentPtr current)
 {
     ROLLLOG_ERROR << "----top is " << lua_gettop(m_pLua) << endl;
@@ -302,11 +300,9 @@ tars::Int32 FriendsServantImp::GetApplicantList(const Friends::QueryApplicantLis
         return -1;
     }
     // 获取返回值 -- 返回值在栈顶
-    int resp_from_lua = lua_tonumber(m_pLua, -1);
+    fetch_lua_array(m_pLua, resp.ApplicantList);
     lua_pop(m_pLua, 1);//弹出一个元素
-    ROLLLOG_DEBUG << "resp_from_lua : " << resp_from_lua << endl;
     ROLLLOG_ERROR << "++++top is " << lua_gettop(m_pLua) << endl;;//检查堆栈情况
-    return resp_from_lua;
     return 0;
 }
 
