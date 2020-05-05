@@ -120,6 +120,37 @@ namespace{
         ROLLLOG_DEBUG << msg << endl;                            
         return 0;//返回给lua的参数个数
     }
+
+    // 字符串转换为枚举,lua调用
+    int __stoe(lua_State *L)
+    {
+        size_t len;
+        const char* msg = lua_tolstring(L, 
+                                    1, //栈底
+                                    &len);
+        Friends::Eum_Friend_Relationship_Type type;
+        if(stoe(msg, type) != -1){
+            lua_pushnumber(L, type);
+        }else{
+            lua_pushnumber(L, -1);
+        }
+        return 1;
+    }
+
+    // 获取从lua返回的数组 -1:栈顶  1:栈底
+    void fetch_lua_array(lua_State *L, std::vector<int64_t>& result)
+    {
+        int len = luaL_getn(L, -1);
+        ROLLLOG_DEBUG << "len : " << len << endl;
+        for (auto i = 1; i <= len; ++i)
+        {
+            lua_pushnumber(L, i);//push index
+            lua_gettable(L, -2);//pop index push table[index]
+            int64_t elem = lua_tonumber(L, -1);
+            result.push_back(elem);
+            lua_pop(L, 1);//pop 
+        }
+    }
 }
 void FriendsServantImp::initialize()
 {
@@ -159,6 +190,7 @@ void FriendsServantImp::initialize()
     lua_register(m_pLua, "query", __query);
     lua_register(m_pLua, "insert", __insert);
     lua_register(m_pLua, "update", __update);
+    lua_register(m_pLua, "stoe", __stoe);
     luaL_loadfile(m_pLua, (ServerConfig::BasePath + "main.lua").c_str());//载入文件
     int ret = lua_pcall(m_pLua, 
         0,//参数个数 
@@ -233,12 +265,13 @@ tars::Int32 FriendsServantImp::QueryFriends(const Friends::QueryFriendListReq &r
         return -1;
     }
     // 获取返回值 -- 返回值在栈顶
-    int resp_from_lua = lua_tonumber(m_pLua, -1);
+    fetch_lua_array(m_pLua, resp.FriendList);
     lua_pop(m_pLua, 1);//弹出一个元素
-    ROLLLOG_DEBUG << "resp_from_lua : " << resp_from_lua << endl;
     ROLLLOG_ERROR << "++++top is " << lua_gettop(m_pLua) << endl;;//检查堆栈情况
-    return resp_from_lua;
+    return 0;
 }
+
+
 tars::Int32 FriendsServantImp::AgreeToAdd(const Friends::AgreeToAddReq & req,Friends::AgreeToAddResp &resp,tars::TarsCurrentPtr current)
 {
     ROLLLOG_ERROR << "----top is " << lua_gettop(m_pLua) << endl;

@@ -96,12 +96,11 @@ function QueryFriends(uid)
     Log("result : " .. result)
 
     local records = json.decode(result)
+    local friend_list = {}
     for i,v1 in ipairs(records) do
-        for j,v2 in pairs(v1) do
-            Log(i .. j .. v2)
-        end
+        table.insert( friend_list, v1["friend_uid"] )
     end
-    return 0
+    return friend_list
 end
 
 function AgreeToAdd( uid, friend_uid, is_agree )
