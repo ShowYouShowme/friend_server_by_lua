@@ -1,10 +1,4 @@
 json = require "json"
-print("Hello from lua!")
-
-
-
-info = json.decode('{"name":"nash", "age": 28}')
-print(info["name"])
 
 function checkBeenFriend( uid, friend_uid )
     local result = query("select * from tb_friend where uid = " .. uid .. " and friend_uid = " .. friend_uid)
